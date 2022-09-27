@@ -1,4 +1,6 @@
-﻿namespace CVSEncryptionDecryption
+﻿using System;
+
+namespace CVSEncryptionDecryption
 {
     class Program
     {
