@@ -1,0 +1,48 @@
+# Variable 'BUILD_BUILDNUMBER' was defined in the Variables tab
+# Variable 'BuildEnv' was defined in the Variables tab
+trigger:
+  branches:
+    include:
+    - refs/heads/main
+name: 1.0.$(Rev:r)
+jobs:
+- job: Job_1
+  displayName: Agent job 1
+  pool:
+    vmImage: windows-2019
+  steps:
+  - checkout: self
+  - task: DotNetCoreCLI@2
+    displayName: dotnet restore
+    inputs:
+      command: restore
+      projects: '**/CVSEncryptionDecryption/*.csproj'
+      feedRestore: <Project_Name>/<Feed_Name>
+  - task: DotNetCoreCLI@2
+    displayName: dotnet build
+    inputs:
+      projects: '**/CVSEncryptionDecryption/*.csproj'
+      arguments: --configuration $(BuildConfiguration)
+  - task: DotNetCoreCLI@2
+    displayName: dotnet pack
+    inputs:
+      command: pack
+      publishWebProjects: false
+      projects: '**/*CVSEncryptionDecryption.sln'
+      arguments: --output $(Build.ArtifactStagingDirectory)/
+      zipAfterPublish: True
+      searchPatternPack: '**/CVSEncryptionDecryption/*.csproj'
+      versioningScheme: byEnvVar
+      versionEnvVar: BuildEnv
+  - task: DotNetCoreCLI@2
+    displayName: dotnet nuget push
+    inputs:
+      command: push
+      feedPublish: <Project_Name>/<Feed_Name>
+  - task: PublishBuildArtifacts@1
+    displayName: publish artifact
+    condition: succeededOrFailed()
+    inputs:
+      PathtoPublish: $(build.artifactstagingdirectory)
+      TargetPath: '\\my\share\$(Build.DefinitionName)\$(Build.BuildNumber)'
+...
