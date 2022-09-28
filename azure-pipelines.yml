@@ -21,5 +21,5 @@ steps:
     publishVstsFeed: 'f2bb62e5-bb74-41a8-918a-fa335c85ae36/7c0bf75f-2228-434d-accc-101192149ef8'
     allowPackageConflicts: true
 - script: |
-      dotnet nuget push PackageRegistryPOC\CVSEncryptionDecryption\CVSEncryptionDecryption\bin\Release\ --source https://pkgs.dev.azure.com/Healthcare360/DemoHealthProject/_packaging/CVSEncryptionDecryption/nuget/v3/index.json --api-key 'Demo'
+      dotnet nuget push **\CVSEncryptionDecryption\bin\Release\*.nupkg --source https://pkgs.dev.azure.com/Healthcare360/DemoHealthProject/_packaging/CVSEncryptionDecryption/nuget/v3/index.json --api-key 'Demo'
   displayName:  "Build, pack and push" 
