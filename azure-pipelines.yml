@@ -1,0 +1,25 @@
+# Starter pipeline
+
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- task: NuGetAuthenticate@0
+  displayName:  'NugetAuthenticate'
+- task: NuGetCommand@2
+  inputs:
+    command: push
+    packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
+    nuGetFeedType: 'internal'
+    publishVstsFeed: 'f2bb62e5-bb74-41a8-918a-fa335c85ae36/7c0bf75f-2228-434d-accc-101192149ef8'
+    allowPackageConflicts: true
+- script: |
+      dotnet nuget push PackageRegistryPOC\CVSEncryptionDecryption\CVSEncryptionDecryption\bin\Release\ --source https://pkgs.dev.azure.com/Healthcare360/DemoHealthProject/_packaging/CVSEncryptionDecryption/nuget/v3/index.json --api-key 'Demo'
+  displayName:  "Build, pack and push" 
