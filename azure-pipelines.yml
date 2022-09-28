@@ -21,6 +21,5 @@ steps:
     publishVstsFeed: 'f2bb62e5-bb74-41a8-918a-fa335c85ae36/7c0bf75f-2228-434d-accc-101192149ef8'
     allowPackageConflicts: true
 - script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+      dotnet nuget push <PACKAGE_PATH> --source https://pkgs.dev.azure.com/<ORGANIZATION_NAME>/<PROJECT_NAME>/_packaging/<FEED_NAME>/nuget/v3/index.json --api-key <ANY_STRING>
+  displayName:  "Build, pack and push" 
