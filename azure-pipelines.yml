@@ -9,17 +9,33 @@ trigger:
 
 pool:
   vmImage: ubuntu-latest
-
+variables:
+  solution: '**/*.sln'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
 steps:
-- task: NuGetAuthenticate@0
-  displayName:  'NugetAuthenticate'
 - task: NuGetCommand@2
   inputs:
-    command: push
-    packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
-    nuGetFeedType: 'internal'
-    publishVstsFeed: 'f2bb62e5-bb74-41a8-918a-fa335c85ae36/7c0bf75f-2228-434d-accc-101192149ef8'
-    allowPackageConflicts: true
-- script: |
-      dotnet nuget push $(Build.ArtifactStagingDirectory)/**/*.nupkg --source https://pkgs.dev.azure.com/Healthcare360/DemoHealthProject/_packaging/CVSEncryptionDecryption/nuget/v3/index.json --api-key 'Demo'
-  displayName:  "Build, pack and push" 
+    restoreSolution: '$(solution)'
+- task: VSBuild@1
+  inputs:
+    solution: '$(solution)'
+    msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:DesktopBuildPackageLocation="$(build.artifactStagingDirectory)\WebApp.zip" /p:DeployIisAppPath="Default Web Site"'
+    platform: '$(buildPlatform)'
+    configuration: '$(buildConfiguration)'
+
+- task: VSTest@2
+  inputs:
+    platform: '$(buildPlatform)'
+    configuration: '$(buildConfiguration)'
+
+- task: NuGetCommand@2
+  inputs:
+    command: pack
+    packagesToPack: '**/CVSEncryptionDecryption.csproj'
+    packDestination: '$(Build.ArtifactStagingDirectory)'
+    
+  
+- script: 
+      nuget push $(Build.ArtifactStagingDirectory)/**/*.nupkg -src https://pkgs.dev.azure.com/Healthcare360/DemoHealthProject/_packaging/CVSEncryptionDecryption/nuget/v3/index.json -ApiKey 'Demo'
+  displayName:  "push" 
